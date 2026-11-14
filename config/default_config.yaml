@@ -1,0 +1,65 @@
+# ==============================================================================
+# Drone Flood Rescue: Human Detection & Geolocation Configuration
+# ==============================================================================
+
+# Model Detection Parameters
+model:
+  model_path: "models/yolov8n.pt"
+  confidence_threshold: 0.80     # Trigger only when human detection confidence >= 80% (0.80)
+  iou_threshold: 0.45
+  human_class_id: 0             # COCO person class
+  inference_size: 640           # 640 for high accuracy; use 416 or 320 on Raspberry Pi 4 for faster FPS
+  half_precision: false         # Set true on GPUs or supported Pi accelerators
+  enable_tracking: true         # Enable ByteTrack multi-human tracking
+
+# Drone Telemetry Defaults (Simulated / Fallback when live telemetry is offline)
+drone:
+  default_latitude: 12.971599   # Drone current GPS Latitude (degrees)
+  default_longitude: 77.594566  # Drone current GPS Longitude (degrees)
+  default_altitude_m: 25.0      # Altitude above flood/ground surface in meters (from barometer / LiDAR / GPS)
+  default_heading_deg: 45.0     # Drone heading in degrees (0 = North, 90 = East, 180 = South, 270 = West)
+
+# Camera & Gimbal Parameters
+camera:
+  # Raspberry Pi Camera Module v2: HFOV ~62.2°, VFOV ~48.8°
+  # Adjust according to your specific drone camera specs
+  horizontal_fov_deg: 62.2
+  vertical_fov_deg: 48.8
+  
+  # Camera mounting / gimbal tilt angle relative to horizontal:
+  # 0.0° = Level with horizon (straight ahead)
+  # 45.0° = Angled downwards at 45 degrees
+  # 90.0° = Pointing straight down (nadir)
+  tilt_pitch_deg: 45.0
+  roll_deg: 0.0                 # Gimbal roll compensation
+  yaw_offset_deg: 0.0           # Offset between camera optical axis and drone heading
+  
+  # Video Input
+  input_source: 0               # Device index (0 for USB/PiCam), or file path (e.g., test_videos/clip1.mp4)
+  frame_width: 640
+  frame_height: 480
+  target_fps: 25
+
+# Telemetry Source Selection
+telemetry:
+  provider: "mock"              # Options: "mock", "mavlink", "serial_gps"
+  
+  # MAVLink settings (Pixhawk / ArduPilot / PX4 on Raspberry Pi)
+  mavlink:
+    connection_string: "udp:127.0.0.1:14550"  # or "/dev/ttyAMA0" or "/dev/ttyUSB0"
+    baud_rate: 57600
+    timeout_sec: 3.0
+    
+  # Serial GPS module (e.g. u-blox NEO-M8N connected to Pi UART/USB)
+  serial_gps:
+    port: "/dev/ttyUSB0"
+    baud_rate: 9600
+
+# Rescue Mission Logging & Alerts
+output:
+  log_dir: "output_logs"
+  save_annotated_video: true
+  save_snapshots: true          # Save cropped snapshot whenever a human is detected with >= 80% confidence
+  snapshot_cooldown_sec: 2.0    # Prevent saving hundreds of duplicate images of the same person
+  export_csv: true              # CSV rescue log with timestamp, drone GPS, human GPS, distance, confidence
+  export_geojson: true          # GeoJSON point layer for disaster management GIS / QGIS / ATAK

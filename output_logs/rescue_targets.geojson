@@ -1,0 +1,291 @@
+{
+  "type": "FeatureCollection",
+  "name": "DroneFloodRescueTargets",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.59463,
+          12.9716605
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 89.5,
+        "ground_distance_m": 7.62,
+        "slant_distance_m": 21.4,
+        "timestamp": "2026-11-14T13:48:40",
+        "drone_alt_m": 20.0,
+        "snapshot": "rescue_survivor_ID1_1794644320.jpg"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946302,
+          12.9716603
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 88.8,
+        "ground_distance_m": 7.61,
+        "slant_distance_m": 21.4,
+        "timestamp": "2026-11-14T13:48:40",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946309,
+          12.9716606
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 88.6,
+        "ground_distance_m": 7.68,
+        "slant_distance_m": 21.42,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946331,
+          12.9716622
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 86.1,
+        "ground_distance_m": 7.97,
+        "slant_distance_m": 21.53,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946386,
+          12.9716658
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 89.6,
+        "ground_distance_m": 8.66,
+        "slant_distance_m": 21.8,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946399,
+          12.9716662
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 91.0,
+        "ground_distance_m": 8.79,
+        "slant_distance_m": 21.85,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946408,
+          12.9716661
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 91.3,
+        "ground_distance_m": 8.85,
+        "slant_distance_m": 21.87,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946416,
+          12.9716663
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 91.2,
+        "ground_distance_m": 8.93,
+        "slant_distance_m": 21.9,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946445,
+          12.9716683
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 92.2,
+        "ground_distance_m": 9.31,
+        "slant_distance_m": 22.06,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946469,
+          12.9716699
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 91.9,
+        "ground_distance_m": 9.61,
+        "slant_distance_m": 22.19,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946563,
+          12.9716767
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 90.9,
+        "ground_distance_m": 10.88,
+        "slant_distance_m": 22.77,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946637,
+          12.9716823
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 89.5,
+        "ground_distance_m": 11.89,
+        "slant_distance_m": 23.27,
+        "timestamp": "2026-11-14T13:48:41",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946685,
+          12.9716849
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 87.7,
+        "ground_distance_m": 12.47,
+        "slant_distance_m": 23.57,
+        "timestamp": "2026-11-14T13:48:42",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946696,
+          12.9716849
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 86.1,
+        "ground_distance_m": 12.56,
+        "slant_distance_m": 23.62,
+        "timestamp": "2026-11-14T13:48:42",
+        "drone_alt_m": 20.0,
+        "snapshot": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5946748,
+          12.9716868
+        ]
+      },
+      "properties": {
+        "track_id": 1,
+        "confidence_pct": 85.1,
+        "ground_distance_m": 13.14,
+        "slant_distance_m": 23.93,
+        "timestamp": "2026-11-14T13:48:42",
+        "drone_alt_m": 20.0,
+        "snapshot": "rescue_survivor_ID1_1794644322.jpg"
+      }
+    }
+  ]
+}

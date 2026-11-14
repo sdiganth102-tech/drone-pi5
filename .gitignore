@@ -1,0 +1,14 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Output recordings & logs
+output_logs/*.mp4
+output_logs/*.avi
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
