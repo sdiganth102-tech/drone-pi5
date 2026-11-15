@@ -124,16 +124,7 @@ state = MissionState()
 worker_thread: Optional[threading.Thread] = None
 
 def get_available_videos():
-    videos = [
-        {
-            "filename": "__WEBCAM__",
-            "title": "📹 Live Webcam / Drone Camera",
-            "description": "Stream live camera feed from your PC/webcam or USB drone camera in real time.",
-            "badge": "🔴 LIVE CAMERA",
-            "difficulty": "Real-Time Demo",
-            "thumbnail": "/static/thumbnails/webcam_thumb.jpg"
-        }
-    ]
+    videos = []
     if os.path.exists(VIDEOS_DIR):
         files = [f for f in os.listdir(VIDEOS_DIR) if f.endswith(('.mp4', '.avi', '.mov', '.mkv'))]
         for f in files:
@@ -192,16 +183,24 @@ def mission_pipeline_worker():
         hud = DroneHudVisualizer(frame_width=640, frame_height=480)
 
         if state.active_video == "__WEBCAM__":
-            logger.info("Connecting to live webcam device 0...")
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened() and sys.platform == "win32":
+            logger.info("Connecting to live webcam (Device 0)...")
+            if sys.platform == "win32":
                 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            else:
+                cap = cv2.VideoCapture(0)
+
+            if not cap.isOpened():
+                cap = cv2.VideoCapture(0)
+
             if not cap.isOpened():
                 logger.error("Cannot open live webcam.")
                 with state.lock:
                     state.is_running = False
                     state.status = "ERROR: Webcam device 0 not accessible"
                 return
+
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         else:
             video_path = os.path.join(VIDEOS_DIR, state.active_video)
             cap = cv2.VideoCapture(video_path)
