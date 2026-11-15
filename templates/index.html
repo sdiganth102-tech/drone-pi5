@@ -496,8 +496,16 @@
 
     <!-- 1. VIDEO SELECTION GALLERY -->
     <section>
-      <div class="section-title">
-        <span>📹 Select Flood Surveillance Video</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div class="section-title" style="margin-bottom: 0;">
+          <span>📹 Select Surveillance Video, Live Camera, or Upload</span>
+        </div>
+        <div>
+          <input type="file" id="video-file-input" accept="video/mp4,video/avi,video/quicktime,video/x-matroska,.mp4,.avi,.mov,.mkv" style="display: none;" onchange="handleVideoUpload(this)">
+          <button class="btn btn-outline" onclick="document.getElementById('video-file-input').click()" style="color: var(--cyan); border-color: rgba(0, 229, 255, 0.4); font-size: 13px; padding: 6px 14px;">
+            <span>📤</span> Upload Custom Video File
+          </button>
+        </div>
       </div>
       <div class="video-gallery" id="video-gallery">
         {% for v in videos %}
@@ -657,6 +665,55 @@
       selectedVideo = filename;
       document.querySelectorAll('.video-card').forEach(el => el.classList.remove('selected'));
       cardEl.classList.add('selected');
+      if (filename === "__WEBCAM__") {
+        document.getElementById('system-status-text').innerText = "LIVE WEBCAM SELECTED";
+      }
+    }
+
+    function handleVideoUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('video_file', file);
+
+      const statusText = document.getElementById('system-status-text');
+      statusText.innerText = "UPLOADING: " + file.name + "...";
+
+      fetch('/api/upload_video', {
+        method: 'POST',
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.video) {
+          statusText.innerText = "UPLOADED: " + data.video.title;
+          const gallery = document.getElementById('video-gallery');
+          const card = document.createElement('div');
+          card.className = 'video-card selected';
+          card.onclick = function() { selectVideo(data.video.filename, card); };
+          card.innerHTML = `
+            <div class="video-thumb-container">
+              <img src="${data.video.thumbnail}" class="video-thumb" alt="${data.video.title}">
+              <span class="badge-tag">${data.video.badge}</span>
+              <span class="selected-indicator" style="display:block;">SELECTED</span>
+            </div>
+            <div class="video-card-body">
+              <div class="video-title">${data.video.title}</div>
+              <div class="video-desc">${data.video.description}</div>
+            </div>
+          `;
+          document.querySelectorAll('.video-card').forEach(el => el.classList.remove('selected'));
+          gallery.insertBefore(card, gallery.firstChild);
+          selectedVideo = data.video.filename;
+          alert("Video '" + data.video.title + "' uploaded successfully! Click 'START MISSION' to run detection.");
+        } else {
+          alert("Upload failed: " + (data.error || "Unknown error"));
+          statusText.innerText = "UPLOAD FAILED";
+        }
+      })
+      .catch(err => {
+        alert("Upload error: " + err);
+      });
     }
 
     function startMission() {

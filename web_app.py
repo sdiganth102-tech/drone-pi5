@@ -124,7 +124,16 @@ state = MissionState()
 worker_thread: Optional[threading.Thread] = None
 
 def get_available_videos():
-    videos = []
+    videos = [
+        {
+            "filename": "__WEBCAM__",
+            "title": "📹 Live Webcam / Drone Camera",
+            "description": "Stream live camera feed from your PC/webcam or USB drone camera in real time.",
+            "badge": "🔴 LIVE CAMERA",
+            "difficulty": "Real-Time Demo",
+            "thumbnail": "/static/thumbnails/webcam_thumb.jpg"
+        }
+    ]
     if os.path.exists(VIDEOS_DIR):
         files = [f for f in os.listdir(VIDEOS_DIR) if f.endswith(('.mp4', '.avi', '.mov', '.mkv'))]
         for f in files:
@@ -182,15 +191,26 @@ def mission_pipeline_worker():
 
         hud = DroneHudVisualizer(frame_width=640, frame_height=480)
 
-        video_path = os.path.join(VIDEOS_DIR, state.active_video)
-        cap = cv2.VideoCapture(video_path)
-
-        if not cap.isOpened():
-            logger.error(f"Cannot open video: {video_path}")
-            with state.lock:
-                state.is_running = False
-                state.status = "ERROR: Cannot open video"
-            return
+        if state.active_video == "__WEBCAM__":
+            logger.info("Connecting to live webcam device 0...")
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened() and sys.platform == "win32":
+                cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            if not cap.isOpened():
+                logger.error("Cannot open live webcam.")
+                with state.lock:
+                    state.is_running = False
+                    state.status = "ERROR: Webcam device 0 not accessible"
+                return
+        else:
+            video_path = os.path.join(VIDEOS_DIR, state.active_video)
+            cap = cv2.VideoCapture(video_path)
+            if not cap.isOpened():
+                logger.error(f"Cannot open video: {video_path}")
+                with state.lock:
+                    state.is_running = False
+                    state.status = "ERROR: Cannot open video"
+                return
 
         with state.lock:
             state.status = "SCANNING FLOOD ZONE"
@@ -206,8 +226,12 @@ def mission_pipeline_worker():
             t_start = time.time()
             ret, frame = cap.read()
             if not ret:
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                continue
+                if state.active_video == "__WEBCAM__":
+                    time.sleep(0.01)
+                    continue
+                else:
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    continue
 
             fh, fw = frame.shape[:2]
 
@@ -340,6 +364,41 @@ def video_feed():
 @app.route("/api/videos")
 def api_videos():
     return jsonify(get_available_videos())
+
+@app.route("/api/upload_video", methods=["POST"])
+def api_upload_video():
+    if "video_file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    file = request.files["video_file"]
+    if not file or file.filename == "":
+        return jsonify({"error": "Empty filename"}), 400
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in [".mp4", ".avi", ".mov", ".mkv"]:
+        return jsonify({"error": "Please upload a valid MP4, AVI, MOV, or MKV video"}), 400
+
+    safe_filename = "".join(c for c in file.filename if c.isalnum() or c in "._- ")
+    save_path = os.path.join(VIDEOS_DIR, safe_filename)
+    file.save(save_path)
+
+    # Generate thumbnail
+    cap = cv2.VideoCapture(save_path)
+    ret, frame = cap.read()
+    thumb_name = f"{safe_filename}.jpg"
+    if ret:
+        thumb = cv2.resize(frame, (320, 180))
+        cv2.imwrite(os.path.join(THUMBNAILS_DIR, thumb_name), thumb)
+    cap.release()
+
+    meta = {
+        "filename": safe_filename,
+        "title": safe_filename.replace(ext, "").replace("_", " ").title(),
+        "description": "User-uploaded drone surveillance video.",
+        "badge": "Uploaded Video",
+        "difficulty": "Custom Video",
+        "thumbnail": f"/static/thumbnails/{thumb_name}"
+    }
+    return jsonify({"success": True, "video": meta})
 
 @app.route("/api/start", methods=["POST"])
 def api_start():
