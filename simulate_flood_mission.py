@@ -32,7 +32,8 @@ def run_mission_simulation(
     drone_heading: float = 45.0,
     camera_tilt_deg: float = 45.0,
     max_frames: int = 200,
-    conf_threshold: float = 0.80
+    conf_threshold: float = 0.80,
+    show_window: bool = False
 ):
     if not os.path.exists(video_path):
         logger.error(f"Video file not found: {video_path}")
@@ -82,6 +83,10 @@ def run_mission_simulation(
     )
 
     hud = DroneHudVisualizer(frame_width=fw, frame_height=fh)
+
+    if show_window:
+        cv2.namedWindow("Flood Rescue Mission Simulation", cv2.WINDOW_NORMAL)
+        logger.info("Live display window OPENED. Press 'q' to stop, 'SPACE' to pause.")
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (fw, fh))
@@ -142,8 +147,19 @@ def run_mission_simulation(
 
         out.write(annotated)
 
+        if show_window:
+            cv2.imshow("Flood Rescue Mission Simulation", annotated)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                logger.info("Simulation stopped by user.")
+                break
+            elif key == ord(' '):
+                cv2.waitKey(0)
+
     cap.release()
     out.release()
+    if show_window:
+        cv2.destroyAllWindows()
     elapsed = time.time() - t_start
 
     logger.info("\n" + "=" * 60)
@@ -167,6 +183,7 @@ if __name__ == "__main__":
     parser.add_argument("--tilt", type=float, default=45.0)
     parser.add_argument("--frames", type=int, default=150)
     parser.add_argument("--conf", type=float, default=0.80)
+    parser.add_argument("--show", action="store_true", help="Display live video window with tactical HUD during simulation")
     args = parser.parse_args()
 
     run_mission_simulation(
@@ -175,5 +192,6 @@ if __name__ == "__main__":
         drone_alt_m=args.alt,
         camera_tilt_deg=args.tilt,
         max_frames=args.frames,
-        conf_threshold=args.conf
+        conf_threshold=args.conf,
+        show_window=args.show
     )
