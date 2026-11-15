@@ -488,3 +488,46 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"Starting Drone Flood Rescue Web Server on http://localhost:{port}...")
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+
+# ------------------- YouTube Download Endpoint -------------------
+@app.route("/api/download_youtube", methods=["POST"])
+def api_download_youtube():
+    data = request.get_json() or {}
+    url = data.get("url", "").strip()
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+    if not (url.startswith("http://") or url.startswith("https://")):
+        return jsonify({"error": "Invalid URL"}), 400
+
+    # Generate a unique filename for the downloaded video
+    import uuid, subprocess
+    temp_name = f"yt_{uuid.uuid4().hex}.mp4"
+    temp_path = os.path.join(VIDEOS_DIR, temp_name)
+
+    try:
+        # Download best quality video using yt-dlp
+        cmd = ["yt-dlp", "-f", "best", "-o", temp_path, url]
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        logger.info(f"YouTube video downloaded to {temp_path}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"yt-dlp error: {e.stderr}")
+        return jsonify({"error": "Failed to download video", "details": e.stderr}), 500
+
+    # Generate thumbnail from first frame
+    cap = cv2.VideoCapture(temp_path)
+    ret, frame = cap.read()
+    thumb_name = f"{temp_name}.jpg"
+    if ret:
+        thumb = cv2.resize(frame, (320, 180))
+        cv2.imwrite(os.path.join(THUMBNAILS_DIR, thumb_name), thumb)
+    cap.release()
+
+    meta = {
+        "filename": temp_name,
+        "title": temp_name.replace('.mp4', '').replace('_', ' ').title(),
+        "description": "YouTube video downloaded via UI",
+        "badge": "YouTube Video",
+        "difficulty": "External Source",
+        "thumbnail": f"/static/thumbnails/{thumb_name}"
+    }
+    return jsonify({"success": True, "video": meta})

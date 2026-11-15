@@ -577,6 +577,9 @@
         <button class="mode-tab-btn" id="tab-webcam" onclick="switchMode('webcam')">
           <span>🔴</span> Live Webcam / Drone Camera
         </button>
+        <button class="mode-tab-btn" id="tab-youtube" onclick="switchMode('youtube')">
+          <span>📹</span> YouTube Video
+        </button>
       </div>
 
       <!-- VIEW 1: PRESET DISASTER VIDEOS -->
@@ -624,7 +627,26 @@
         </div>
       </div>
 
-      <!-- VIEW 3: LIVE WEBCAM STATION -->
+      
+      <!-- VIEW 4: YOUTUBE VIDEO DOWNLOAD -->
+      <div id="view-youtube" style="display: none;">
+        <div class="dropzone-box" style="text-align: left;">
+          <h3 style="font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px;">
+            Enter YouTube Video URL
+          </h3>
+          <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." style="width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid var(--card-border); background: #11151e; color: var(--text-light);" />
+          <button class="btn btn-start" onclick="loadYouTubeVideo()">
+            <span>📹</span> Load & Run YouTube Video
+          </button>
+          <div id="youtube-status-card" style="display: none; margin-top: 14px; background: #131720; border: 1px solid var(--cyan); border-radius: 8px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div id="youtube-filename" style="font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; color: var(--cyan);">--</div>
+            <button class="btn btn-start" style="padding: 8px 18px;" onclick="startMission()">
+              <span>▶</span> Process YouTube Video
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div id="view-webcam" style="display: none;">
         <div class="webcam-station-card">
           <div style="display: flex; align-items: center; gap: 18px;">
@@ -795,10 +817,12 @@
       document.getElementById('tab-presets').classList.remove('active');
       document.getElementById('tab-upload').classList.remove('active');
       document.getElementById('tab-webcam').classList.remove('active');
+      document.getElementById('tab-youtube').classList.remove('active');
 
       document.getElementById('view-presets').style.display = 'none';
       document.getElementById('view-upload').style.display = 'none';
       document.getElementById('view-webcam').style.display = 'none';
+      document.getElementById('view-youtube').style.display = 'none';
 
       if (mode === 'presets') {
         document.getElementById('tab-presets').classList.add('active');
@@ -811,6 +835,9 @@
         document.getElementById('view-webcam').style.display = 'block';
         selectedVideo = "__WEBCAM__";
         document.getElementById('system-status-text').innerText = "LIVE WEBCAM MODE ACTIVE";
+      } else if (mode === 'youtube') {
+        document.getElementById('tab-youtube').classList.add('active');
+        document.getElementById('view-youtube').style.display = 'block';
       }
     }
 
