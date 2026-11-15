@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drone Flood Rescue — Mission Control Station</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0c10;
+      --card-bg: #131720;
+      --card-border: #1f2737;
+      --cyan: #00e5ff;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --text-muted: #8b9bb4;
+      --text-light: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: linear-gradient(180deg, #10141f 0%, #0d1017 100%);
+      border-bottom: 1px solid #1f293d;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 26px;
+      background: rgba(0, 229, 255, 0.1);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+
+    .brand-text h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+    }
+
+    .top-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .layout-container {
+      max-width: 1540px;
+      margin: 20px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Video Selection Gallery Section */
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .video-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .video-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .video-card:hover {
+      border-color: rgba(0, 229, 255, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 229, 255, 0.15);
+    }
+
+    .video-card.selected {
+      border-color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+      background: #161c28;
+    }
+
+    .video-thumb-container {
+      position: relative;
+      height: 140px;
+      background: #000;
+    }
+
+    .video-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+    }
+
+    .badge-tag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      color: var(--cyan);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .selected-indicator {
+      display: none;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--cyan);
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .video-card.selected .selected-indicator {
+      display: block;
+    }
+
+    .video-card-body {
+      padding: 12px;
+    }
+
+    .video-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .video-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      height: 34px;
+      overflow: hidden;
+    }
+
+    /* Main Console Grid */
+    .console-grid {
+      display: grid;
+      grid-template-columns: 2.1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .console-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Video Player & HUD Display */
+    .player-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .video-container {
+      position: relative;
+      background: #000;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #stream-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .control-toolbar {
+      padding: 16px 20px;
+      background: #11151e;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+    .btn-start:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45); }
+
+    .btn-pause {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #fff;
+    }
+
+    .btn-stop {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 8px 14px;
+    }
+    .btn-outline:hover {
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    /* Right Telemetry Sidebar */
+    .telemetry-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .telemetry-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .slider-row {
+      margin-bottom: 14px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .slider-val {
+      font-weight: 700;
+      color: var(--cyan);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #232b3c;
+      outline: none;
+      accent-color: var(--cyan);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .metric-box {
+      background: #0f131a;
+      border: 1px solid #1c2333;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .metric-value.highlight-green {
+      color: var(--green);
+    }
+
+    .metric-value.highlight-amber {
+      color: var(--amber);
+    }
+
+    .pythagoras-banner {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .pythagoras-formula {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Event Logs Table */
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 240px;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background: #11151e;
+      color: var(--text-muted);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--card-border);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #161c27;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    tr:hover {
+      background: rgba(0, 229, 255, 0.04);
+    }
+
+    .conf-pill {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .gps-text {
+      font-family: monospace;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🚁</div>
+      <div class="brand-text">
+        <h1>DRONE FLOOD RESCUE</h1>
+        <p>AUTONOMOUS HUMAN DETECTION & PYTHAGOREAN GEOLOCALIZATION</p>
+      </div>
+    </div>
+    <div class="top-status-badge">
+      <div class="pulse-dot" id="system-dot"></div>
+      <span id="system-status-text" style="font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; color: var(--green);">SYSTEM READY</span>
+    </div>
+  </header>
+
+  <div class="layout-container">
+
+    <!-- 1. VIDEO SELECTION GALLERY -->
+    <section>
+      <div class="section-title">
+        <span>📹 Select Flood Surveillance Video</span>
+      </div>
+      <div class="video-gallery" id="video-gallery">
+        {% for v in videos %}
+        <div class="video-card {% if v.filename == default_video %}selected{% endif %}" onclick="selectVideo('{{ v.filename }}', this)">
+          <div class="video-thumb-container">
+            <img src="{{ v.thumbnail }}" class="video-thumb" alt="{{ v.title }}">
+            <span class="badge-tag">{{ v.badge }}</span>
+            <span class="selected-indicator">SELECTED</span>
+          </div>
+          <div class="video-card-body">
+            <div class="video-title">{{ v.title }}</div>
+            <div class="video-desc">{{ v.description }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- 2. MAIN MISSION CONSOLE -->
+    <section class="console-grid">
+      
+      <!-- Video Player Stream -->
+      <div class="player-card">
+        <div class="video-container">
+          <img id="stream-img" src="/video_feed" alt="Drone Live Stream HUD">
+        </div>
+        <div class="control-toolbar">
+          <div class="btn-group">
+            <button class="btn btn-start" onclick="startMission()">
+              <span>▶</span> START MISSION
+            </button>
+            <button class="btn btn-pause" onclick="togglePause()">
+              <span>⏸</span> PAUSE
+            </button>
+            <button class="btn btn-stop" onclick="stopMission()">
+              <span>⏹</span> STOP
+            </button>
+          </div>
+          <div class="btn-group">
+            <a href="/api/download/csv" class="btn btn-outline" download>📥 Export CSV</a>
+            <a href="/api/download/geojson" class="btn btn-outline" download>🗺️ Export GeoJSON</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telemetry & Parameters Sidebar -->
+      <div class="telemetry-sidebar">
+
+        <!-- Flight Tuning Controls -->
+        <div class="telemetry-card">
+          <div class="section-title" style="margin-bottom: 12px; font-size: 13px;">⚙️ Flight & Camera Tuning</div>
+          
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Drone Altitude (h):</span>
+              <span class="slider-val" id="val-alt">25 m</span>
+            </div>
+            <input type="range" id="input-alt" min="5" max="80" value="25" oninput="updateFlightParams()">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Camera Tilt Angle:</span>
+              <span class="slider-val" id="val-tilt">45°</span>
+            </div>
+            <input type="range" id="input-tilt" min="15" max="85" value="45" oninput="updateFlightParams()">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-header">
+              <span>Confidence Threshold:</span>
+              <span class="slider-val" id="val-conf">80%</span>
+            </div>
+            <input type="range" id="input-conf" min="0.4" max="0.95" step="0.05" value="0.80" oninput="updateFlightParams()">
+          </div>
+
+          <div class="pythagoras-banner">
+            <div><strong>Pythagorean Geometry Identity:</strong></div>
+            <div>Vertical Leg = Altitude (h) | Horizontal Leg = Ground Dist</div>
+            <div class="pythagoras-formula">d_slant = √(d_ground² + h²)</div>
+          </div>
+        </div>
+
+        <!-- Live Telemetry Card -->
+        <div class="telemetry-card">
+          <div class="section-title" style="margin-bottom: 10px; font-size: 13px;">📡 Live Detection Telemetry</div>
+
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <div class="metric-label">Survivors</div>
+              <div class="metric-value highlight-green" id="metric-survivors">0</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Peak Confidence</div>
+              <div class="metric-value highlight-green" id="metric-conf">-- %</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Ground Dist</div>
+              <div class="metric-value" id="metric-gdist">-- m</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Slant Range (Pyth)</div>
+              <div class="metric-value highlight-amber" id="metric-slant">-- m</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px; background: #0f131a; padding: 12px; border-radius: 8px; border: 1px solid #1c2333;">
+            <div class="metric-label">Target GPS Coordinates:</div>
+            <div class="gps-text" id="metric-gps" style="font-size: 15px; font-weight: 700; margin-top: 2px;">-- , --</div>
+          </div>
+
+          <div style="margin-top: 8px; background: #0f131a; padding: 8px 12px; border-radius: 8px; border: 1px solid #1c2333; display: flex; justify-content: space-between;">
+            <span class="metric-label">Target Bearing:</span>
+            <span id="metric-bearing" style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--cyan); font-weight: 700;">--°</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- 3. LIVE EVENT LOG TABLE -->
+    <section class="table-card">
+      <div class="section-title" style="margin-bottom: 8px; font-size: 14px;">📋 Real-Time Verified Survivor Detections (>= 80% Confidence)</div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Track ID</th>
+              <th>Confidence</th>
+              <th>Target GPS Coordinates</th>
+              <th>Ground Distance</th>
+              <th>Slant Range (Pythagoras)</th>
+              <th>Bearing</th>
+              <th>Snapshot Proof</th>
+            </tr>
+          </thead>
+          <tbody id="events-tbody">
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                Select a video above and click <strong>START MISSION</strong> to start real-time detection.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    let selectedVideo = "{{ default_video }}";
+
+    function selectVideo(filename, cardEl) {
+      selectedVideo = filename;
+      document.querySelectorAll('.video-card').forEach(el => el.classList.remove('selected'));
+      cardEl.classList.add('selected');
+    }
+
+    function startMission() {
+      const alt = parseFloat(document.getElementById('input-alt').value);
+      const tilt = parseFloat(document.getElementById('input-tilt').value);
+      const conf = parseFloat(document.getElementById('input-conf').value);
+
+      fetch('/api/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          video_name: selectedVideo,
+          altitude: alt,
+          tilt: tilt,
+          confidence: conf
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('system-status-text').innerText = "MISSION RUNNING: " + selectedVideo;
+      });
+    }
+
+    function togglePause() {
+      fetch('/api/pause', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('system-status-text').innerText = data.status || "PAUSED";
+      });
+    }
+
+    function stopMission() {
+      fetch('/api/stop', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('system-status-text').innerText = "MISSION STOPPED";
+      });
+    }
+
+    function updateFlightParams() {
+      const alt = document.getElementById('input-alt').value;
+      const tilt = document.getElementById('input-tilt').value;
+      const conf = document.getElementById('input-conf').value;
+
+      document.getElementById('val-alt').innerText = alt + " m";
+      document.getElementById('val-tilt').innerText = tilt + "°";
+      document.getElementById('val-conf').innerText = Math.round(conf * 100) + "%";
+
+      fetch('/api/update_params', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ altitude: alt, tilt: tilt, confidence: conf })
+      });
+    }
+
+    // Telemetry Poller
+    setInterval(() => {
+      fetch('/api/telemetry')
+      .then(r => r.json())
+      .then(data => {
+        if (!data) return;
+
+        if (data.is_running) {
+          document.getElementById('system-status-text').innerText = data.status;
+          document.getElementById('system-dot').style.background = data.survivor_count > 0 ? "var(--green)" : "var(--cyan)";
+        }
+
+        document.getElementById('metric-survivors').innerText = data.survivor_count;
+
+        if (data.primary_target && data.primary_target.confidence_pct > 0) {
+          const pt = data.primary_target;
+          document.getElementById('metric-conf').innerText = pt.confidence_pct + "%";
+          document.getElementById('metric-gdist').innerText = pt.ground_distance_m + " m";
+          document.getElementById('metric-slant').innerText = pt.slant_distance_m + " m";
+          document.getElementById('metric-gps').innerText = pt.lat + ", " + pt.lon;
+          document.getElementById('metric-bearing').innerText = pt.target_bearing_deg + "°";
+        }
+
+        // Render Events Table
+        if (data.recent_events && data.recent_events.length > 0) {
+          const tbody = document.getElementById('events-tbody');
+          let rowsHtml = '';
+          data.recent_events.forEach(ev => {
+            rowsHtml += `
+              <tr>
+                <td>${ev.time}</td>
+                <td><strong style="color:var(--cyan);">#${ev.track_id}</strong></td>
+                <td><span class="conf-pill">${ev.conf}</span></td>
+                <td class="gps-text">${ev.lat}, ${ev.lon}</td>
+                <td>${ev.ground_dist}</td>
+                <td style="color:var(--amber); font-weight:700;">${ev.slant_dist}</td>
+                <td>${ev.bearing}</td>
+                <td><a href="/snapshots/${ev.snapshot}" target="_blank" style="color:var(--cyan); text-decoration:none;">📷 View Photo</a></td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = rowsHtml;
+        }
+      })
+      .catch(err => {});
+    }, 400);
+  </script>
+
+</body>
+</html>
